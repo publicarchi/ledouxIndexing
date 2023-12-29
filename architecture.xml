@@ -65,7 +65,11 @@
 
             <!-- an instance to show selected text-->
             <instance id="text">
-                <text></text>
+                <text/>
+            </instance>
+
+            <instance id="lock">
+                <lock>locked</lock>
             </instance>
 
             <bind nodeset="instance('query')" relevant="normalize-space(instance('selection'))!=''"/>
@@ -277,7 +281,7 @@
                                     <case id="show-autocompletion">
                                         <group ref="instance('selection')/tei:item[tei:label!='']">
                                             <group ref="instance('concepts')">
-                                                <repeat id="conceptResults" class="autocompleteResults" nodeset="descendant::tei:item[contains(lower-case(tei:label), lower-case(instance('selection')/tei:item/tei:label))]/tei:label[.!=instance('selection')/tei:item/tei:label]">
+                                                <repeat id="conceptResults" class="autocompleteResults" nodeset="sort(descendant::tei:item[contains(lower-case(tei:label), lower-case(instance('selection')/tei:item/tei:label))]/tei:label[.!=instance('selection')/tei:item/tei:label])">
                                                     <trigger appearance="minimal">
                                                         <label><output value="."/></label>
                                                         <action ev:event="DOMActivate">
@@ -292,7 +296,7 @@
                                     </case>
                                     <case id="hide-autocompletion" />
                                     <group ref="instance('selection')/tei:item/tei:label[normalize-space(.)!='']">
-                                        <trigger ref=".[not(instance('concepts')/descendant::tei:item[normalize-space(tei:label) = normalize-space(instance('selection')/tei:item/tei:label)])]">
+                                        <!--<trigger ref=".[not(instance('concepts')/descendant::tei:item[normalize-space(tei:label) = normalize-space(instance('selection')/tei:item/tei:label)])]">
                                             <label>Créer un nouveau concept et indexer</label>
                                             <action ev:event="DOMActivate">
                                                 <insert context="instance('concepts')/tei:text/tei:body/tei:list" nodeset="tei:item" at="last()" position="after" origin="instance('selection')/tei:item" />
@@ -300,7 +304,7 @@
                                                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@*" value="''"/>
                                                 <hide dialog="selectedText"/>
                                             </action>
-                                        </trigger>
+                                        </trigger>-->
                                         <trigger ref=".[instance('concepts')/descendant::tei:item[normalize-space(tei:label) = normalize-space(instance('selection')/tei:item/tei:label)]]">
                                             <label>Indexer</label>
                                             <action if="instance('concepts')/descendant::tei:item[normalize-space(tei:label)=normalize-space(current())][tei:linkGrp]" ev:event="DOMActivate">
@@ -330,15 +334,27 @@
                                         Label
                                         <trigger ref="parent::tei:item[not(tei:list)]">
                                             <label>⮑</label>
-                                            <hint>ajouter un sous-concept</hint>
+                                            <!--<hint>ajouter un sous-concept</hint>-->
                                             <insert if=".[tei:list]" context="tei:list" nodeset="tei:item" at="last()" position="after" origin="instance('conceptEntry')/tei:item" ev:event="DOMActivate" />
                                             <insert if=".[not(tei:list)]" context="." nodeset="*" at="last()" position="after" origin="instance('conceptEntry')" ev:event="DOMActivate"/>
                                             <load resource="javascript:generateid()" ev:event="DOMActivate"/>
                                         </trigger>
+                                        <trigger ref="parent::tei:item[instance('lock')='unlocked']">
+                                            <label>×</label>
+                                            <delete nodeset="." ev:event="DOMActivate" />
+                                        </trigger>
                                     </label>
                                 </input>
                                 <repeat id="listSubConcept" nodeset="sort(tei:list/tei:item)">
-                                    <input ref="tei:label"><label>Label</label></input>
+                                    <input ref="tei:label">
+                                        <label>
+                                            Label
+                                            <trigger ref="parent::tei:item[instance('lock')='unlocked']">
+                                                <label>×</label>
+                                                <delete nodeset="." ev:event="DOMActivate" />
+                                            </trigger>
+                                        </label>
+                                    </input>
                                 </repeat>
                                 <trigger ref=".[tei:list]">
                                     <label>+</label>
@@ -351,6 +367,16 @@
                                 <label>+</label>
                                 <insert context="tei:text/tei:body/tei:list" nodeset="tei:item" at="last()" position="after" origin="instance('conceptEntry')/tei:item" ev:event="DOMActivate"/>
                                 <load resource="javascript:generateid()" ev:event="DOMActivate"/>
+                            </trigger>
+                        </group>
+                        <group ref="instance('lock')">
+                            <trigger>
+                                <label>
+                                    <output value="if(.='locked', 'Déverrouiller', 'Verrouiller')"/>
+                                </label>
+                                <action ev:event="DOMActivate">
+                                    <setvalue ref="." value="if(.='locked', 'unlocked', 'locked')" />
+                                </action>
                             </trigger>
                         </group>
                     </case>
@@ -367,7 +393,7 @@
                                                 <load>
                                                     <resource value='concat(
                                                     "javascript:showHighlight(""",
-                                                    normalize-space(@target),
+                                                    normalize-space(.),
                                                     """)")'/>
                                                 </load>
                                             </action>
@@ -384,7 +410,7 @@
                                                     <load>
                                                         <resource value='concat(
                                                     "javascript:showHighlight(""",
-                                                    normalize-space(@target),
+                                                    normalize-space(.),
                                                     """)")'/>
                                                     </load>
                                                 </action>
