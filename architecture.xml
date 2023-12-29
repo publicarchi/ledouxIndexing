@@ -40,10 +40,10 @@
                 </list>
             </instance>
 
-            <!-- an xml-tei file for concepts -->
+            <!-- this instance serve the xml-tei file for concepts -->
             <instance id="concepts" src="concepts.xml"/>
 
-            <!-- The next two instances to add concept and ptr into instance('concepts') -->
+            <!-- The following two instances are used to add concept and ptr into instance('concepts') -->
             <instance id="conceptEntry">
                 <list xmlns="http://www.tei-c.org/ns/1.0">
                     <item xml:id="">
@@ -58,21 +58,15 @@
                 </linkGrp>
             </instance>
 
-            <!-- an instance to query concept and create index entry  => do we really need this ?-->
-            <instance id="query">
-                <text xmlns=""/>
-            </instance>
-
-            <!-- an instance to show selected text-->
+            <!-- this instance allows to highlight selected text-->
             <instance id="text">
                 <text/>
             </instance>
 
+            <!-- this instance is used to lock instance('concepts') and disable the ability to delete concept -->
             <instance id="lock">
                 <lock>locked</lock>
             </instance>
-
-            <bind nodeset="instance('query')" relevant="normalize-space(instance('selection'))!=''"/>
 
             <action ev:event="getStartXpath">
                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@target" value="event('xpathStart')"/>
