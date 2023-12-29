@@ -28,23 +28,7 @@
         <meta name="msapplication-TileColor" content="#ffffff"/>
         <meta name="theme-color" content="#ffffff"/>
         <model xmlns="http://www.w3.org/2002/xforms" id="index">
-            <!-- main instance to store indexing informations about selected text -->
-            <!--<instance id="selection">
-                <selection xmlns="http://www.ledoux-architecture.fr/">
-                    <start>
-                        <xpath></xpath>
-                        <index></index>
-                    </start>
-                    <end>
-                        <xpath></xpath>
-                        <index></index>
-                    </end>
-                    <text></text>
-                    <length></length>
-                    <concept></concept>
-                </selection>
-            </instance>-->
-
+            <!-- main instance to store indexing information about selected text -->
             <instance id="selection">
                 <list xmlns="http://www.tei-c.org/ns/1.0">
                     <item>
@@ -59,6 +43,7 @@
             <!-- an xml-tei file for concepts -->
             <instance id="concepts" src="concepts.xml"/>
 
+            <!-- The next two instances to add concept and ptr into instance('concepts') -->
             <instance id="conceptEntry">
                 <list xmlns="http://www.tei-c.org/ns/1.0">
                     <item xml:id="">
@@ -73,29 +58,22 @@
                 </linkGrp>
             </instance>
 
-            <instance id="text">
-                <text></text>
-            </instance>
-
             <!-- an instance to query concept and create index entry  => do we really need this ?-->
             <instance id="query">
                 <text xmlns=""/>
             </instance>
-            <!--<bind nodeset="instance('concepts')" relevant="instance('query')!=''" />-->
-            <!--<bind nodeset="instance('concepts')" relevant="instance('selection')/tei:item/tei:label!=''" />-->
+
+            <!-- an instance to show selected text-->
+            <instance id="text">
+                <text></text>
+            </instance>
 
             <bind nodeset="instance('query')" relevant="normalize-space(instance('selection'))!=''"/>
 
             <action ev:event="getStartXpath">
-                <!--<setvalue ref="instance('selection')/ldx:start/ldx:xpath" value="event('xpathStart')"/>-->
                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@target" value="event('xpathStart')"/>
             </action>
             <action ev:event="getEndXpath">
-                <!--<setvalue ref="instance('selection')/ldx:end/ldx:xpath" value="event('xpathEnd')"/>
-                <setvalue ref="instance('selection')/ldx:start/ldx:index" value="event('indexStart')"/>
-                <setvalue ref="instance('selection')/ldx:end/ldx:index" value="event('indexEnd')"/>
-                <setvalue ref="instance('selection')/ldx:text" value="event('text')"/>
-                <setvalue ref="instance('selection')/ldx:length" value="event('length')"/>-->
                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@offset" value="event('indexStart')"/>
                 <setvalue ref="instance('text')" value="event('text')"/>
                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@length" value="event('length')"/>
@@ -137,51 +115,8 @@
             background-color: pink;
             }
         </style>
-
-        <script type="text/javascript" src="xpath.js">/*xptr*/</script>
         <!--@todo explore onselectStart js event https://developer.mozilla.org/en-US/docs/Web/API/Node/selectstart_event-->
-        <script type="text/javascript" src="highlight.js">/*highlight*/</script>
-        <script type="text/javascript">
-            document.onmousedown = function (event) {
-                var target = 'target' in event ? event.target: event.srcElement;
-                if(target.closest("#edition")) {
-                    var select = document.getElementsByClassName('highlight');
-                    while(select.length) {
-                        var parent = select[ 0 ].parentNode;
-                        while( select[ 0 ].firstChild ) {
-                            parent.insertBefore(  select[ 0 ].firstChild, select[ 0 ] );
-                        }
-                        parent.removeChild( select[ 0 ] );
-                    }
-                }
-            }
-
-        </script>
-        <script type="text/javascript">
-            function showHighlight(xpath) {
-                var element = document.evaluate(xpath, document, null,
-                        XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-
-                // Check if the element was found and do something with it
-                if (element !== null) {
-                    // Do something with the element
-                    console.log(element);
-                    element.scrollIntoView();
-                    element.classList.add("showHighlight");
-                }
-            }
-
-            function generateid() {
-                let id;
-                id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
-
-                XsltForms_xmlevents.dispatch(document.getElementById("index"),
-                        "callbackevent", null, null, null, null,
-                        {
-                            itemId: id
-                        });
-            }
-        </script>
+        <script type="text/javascript" src="indexing.js">/*xptr*/</script>
     </head>
 
     <body>
@@ -360,7 +295,6 @@
                                         <trigger ref=".[not(instance('concepts')/descendant::tei:item[normalize-space(tei:label) = normalize-space(instance('selection')/tei:item/tei:label)])]">
                                             <label>Créer un nouveau concept et indexer</label>
                                             <action ev:event="DOMActivate">
-                                                <!--<insert context="instance('concepts')/tei:text/tei:body/tei:list" nodeset="tei:item" at="last()" position="after" origin="instance('conceptEntry')" />-->
                                                 <insert context="instance('concepts')/tei:text/tei:body/tei:list" nodeset="tei:item" at="last()" position="after" origin="instance('selection')/tei:item" />
                                                 <setvalue ref="instance('selection')/tei:item/tei:label" value="''"/>
                                                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@*" value="''"/>
@@ -390,7 +324,7 @@
                         <output value="serialize(instance('concepts'))"/>
                         <group ref="instance('concepts')">
                             <label>Concepts</label>
-                            <repeat id="listConcept" nodeset="tei:text/tei:body/tei:list/tei:item">
+                            <repeat id="listConcept" nodeset="sort(tei:text/tei:body/tei:list/tei:item)">
                                 <input ref="tei:label">
                                     <label>
                                         Label
@@ -403,7 +337,7 @@
                                         </trigger>
                                     </label>
                                 </input>
-                                <repeat id="listSubConcept" nodeset="tei:list/tei:item">
+                                <repeat id="listSubConcept" nodeset="sort(tei:list/tei:item)">
                                     <input ref="tei:label"><label>Label</label></input>
                                 </repeat>
                                 <trigger ref=".[tei:list]">
@@ -423,12 +357,12 @@
                     <case id="indexPanel">
                         <group ref="instance('concepts')">
                             <label>Concepts</label>
-                            <repeat id="listConcept" nodeset="tei:text/tei:body/tei:list/tei:item">
+                            <repeat id="listConcept" nodeset="sort(tei:text/tei:body/tei:list/tei:item)">
                                 <label ref="tei:label"/>
                                 <group ref="tei:linkGrp">
-                                    <repeat nodeset="tei:ptr">
+                                    <repeat nodeset="sort(tei:ptr/@target)">
                                         <trigger>
-                                            <label ref="@target"/>
+                                            <label ref="."/>
                                             <action ev:event="DOMActivate">
                                                 <load>
                                                     <resource value='concat(
@@ -438,14 +372,23 @@
                                                 </load>
                                             </action>
                                         </trigger>
-
                                     </repeat>
                                 </group>
-                                <repeat id="listSubConcept" nodeset="tei:list/tei:item">
+                                <repeat id="listSubConcept" nodeset="sort(tei:list/tei:item)">
                                     <label ref="tei:label"/>
                                     <group ref="tei:linkGrp">
-                                        <repeat nodeset="tei:ptr">
-                                            <label ref="@target"/>
+                                        <repeat nodeset="sort(tei:ptr/@target)">
+                                            <trigger>
+                                                <label ref="."/>
+                                                <action ev:event="DOMActivate">
+                                                    <load>
+                                                        <resource value='concat(
+                                                    "javascript:showHighlight(""",
+                                                    normalize-space(@target),
+                                                    """)")'/>
+                                                    </load>
+                                                </action>
+                                            </trigger>
                                         </repeat>
                                     </group>
                                 </repeat>
