@@ -3,7 +3,7 @@ Formulaire pour l'indexation de l'Architecture de C.N. Ledoux.
 Ce formulaire permet d'indexer des passages du texte, d'ajouter des concepts et des renvois dans l'index, et de repérer les fragments indexés.
 
 ## Prérequis
-Ce formulaire a été réalisé avec [XForms](https://www.w3.org/TR/xforms/). Il nécessite un client pour s'exécuter. Nous recommandons [XSLTForms](https://github.com/AlainCouthures/declarative4all/tree/master) ([lien de téléchargement](https://github.com/AlainCouthures/declarative4all/releases/tag/XSLTForms)).
+Ce formulaire a été réalisé avec [XForms](https://www.w3.org/TR/xforms/). Il nécessite un client pour s'exécuter. Nous recommandons [XSLTForms](https://github.com/AlainCouthures/declarative4all/tree/master) 1.7 ([lien de téléchargement](https://github.com/AlainCouthures/declarative4all/releases/tag/XSLTForms)).
 
 XSLTForms repose sur l'utilisation d'une feuille de transformation XSLT, pour exécuter le formulaire, il est donc nécessaire que les fichiers soient déposés sur un espace serveur, local ou en ligne.
 
@@ -23,3 +23,6 @@ XSLTForms repose sur l'utilisation d'une feuille de transformation XSLT, pour ex
 ├── README.md
 └── style.css // feuille de style pour le design de la page
 ```
+
+## Compatibilité
+Le formulaire a été testé avec les navigateurs Firefox 121.0 (macOs/Ubuntu) et Safari 17.2.1 (macOS)
