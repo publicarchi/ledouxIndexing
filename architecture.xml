@@ -229,15 +229,15 @@
         <div class="side_inner" id="side-summary">
             <div id="form">
                 <switch  xmlns="http://www.w3.org/2002/xforms">
-                    <trigger>
+                    <trigger class="tab selected">
                         <label>Indexer</label>
                         <toggle case="indexingPanel" ev:event="DOMActivate" />
                     </trigger>
-                    <trigger>
+                    <trigger class="tab">
                         <label>Entrées</label>
                         <toggle case="conceptsPanel" ev:event="DOMActivate" />
                     </trigger>
-                    <trigger>
+                    <trigger class="tab">
                         <label>Index</label>
                         <toggle case="indexPanel" ev:event="DOMActivate"/>
                     </trigger>

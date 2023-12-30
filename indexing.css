@@ -4,10 +4,10 @@ div#form select{
     color: var(--color-text);
 }
 
-/*div#form > xforms-switch > xforms-trigger[xf-focus] {
+div#form > xforms-switch > xforms-trigger.selected {
     background-color: var(--color-bg);
     color: var(--color-text);
-}*/
+}
 
 div#form > xforms-switch > xforms-case[xf-selected='true'] {
     margin-top: 1em;

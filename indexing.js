@@ -226,3 +226,20 @@ function removeHighlightSelection(event) {
       }
    }
 }
+
+document.addEventListener('click', function handleClick(event) {
+   var target = event.target;
+   var newActiveTab = target.closest('xforms-trigger.tab');
+
+   if(target.closest('xforms-trigger.tab')) {
+      
+      const prevActiveTab = document.querySelectorAll('*');
+      prevActiveTab.forEach((element) => {
+         element.classList.remove("selected")
+      });
+
+
+      newActiveTab.classList.add('selected')
+   }
+ });
+ 
