@@ -7,6 +7,7 @@ div#form select{
 div#form > xforms-switch > xforms-trigger.selected {
     background-color: var(--color-bg);
     color: var(--color-text);
+    padding: 0.5em;
 }
 
 div#form > xforms-switch > xforms-case[xf-selected='true'] {
