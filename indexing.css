@@ -39,3 +39,8 @@ div#form #listConcept > xforms-repeat-item > xforms-trigger {
 .showEntry {
     background-color: pink;
 }
+
+/*to remove the cross superposition with the side panel close button*/
+.side.is-open .side_trigger button:after{
+    content: "";
+}
