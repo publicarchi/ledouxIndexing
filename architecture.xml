@@ -58,6 +58,15 @@
                 </linkGrp>
             </instance>
 
+            <instance id="ref">
+                <list xmlns="http://www.tei-c.org/ns/1.0">
+                    <item xml:id="">
+                        <label/>
+                        <ref corresp=""/>
+                    </item>
+                </list>
+            </instance>
+
             <!-- this instance allows to highlight selected text-->
             <instance id="text">
                 <text/>
@@ -83,9 +92,20 @@
         </model>
 
         <style>
-            div#form xforms-input input{
+            div#form xforms-input input,
+            div#form select{
                 background-color: var(--color-bg);
                 color: var(--color-text);
+            }
+
+            div#form xforms-repeat[oldid='listConceptRef'] > xforms-repeat-item,
+            div#form xforms-repeat[oldid='listSubConceptRef'] > xforms-repeat-item,
+            div#form xforms-select1,
+            div#form .ref,
+            div#form .ref xforms-repeat[oldid='listItemRef'] {
+                display: flex;
+                align-items: center;
+                gap: 0.2em;
             }
 
             div#form #conceptResults {
@@ -100,7 +120,8 @@
                 margin-right: 2em;
             }
 
-            div#form #listConcept xforms-repeat,
+            div#form #listConcept xforms-repeat[oldid='listSubConcept'],
+            div#form #listItem xforms-repeat[oldid='listSubItem'],
             div#form #listConcept > xforms-repeat-item > xforms-trigger {
                 margin-left: 2em;
             }
@@ -110,7 +131,7 @@
             }
 
             .showHighlight {
-            background-color: pink;
+                background-color: pink;
             }
         </style>
         <!--@todo explore onselectStart js event https://developer.mozilla.org/en-US/docs/Web/API/Node/selectstart_event-->
@@ -333,22 +354,58 @@
                                             <insert if=".[not(tei:list)]" context="." nodeset="*" at="last()" position="after" origin="instance('conceptEntry')" ev:event="DOMActivate"/>
                                             <load resource="javascript:generateid()" ev:event="DOMActivate"/>
                                         </trigger>
+                                        <trigger ref="parent::tei:item">
+                                            <label>⟳</label>
+                                            <!--<hint>ajouter un renvoi</hint>-->
+                                            <insert context="." nodeset="*" at="last()" position="after" origin="instance('ref')/tei:item/tei:ref" ev:event="DOMActivate"/>
+                                        </trigger>
                                         <trigger ref="parent::tei:item[instance('lock')='unlocked']">
                                             <label>×</label>
                                             <delete nodeset="." ev:event="DOMActivate" />
                                         </trigger>
                                     </label>
                                 </input>
+                                <repeat id="listConceptRef" nodeset="tei:ref">
+                                    <select1 ref="@corresp">
+                                        <label>Renvoi</label>
+                                        <itemset nodeset="sort(instance('concepts')//tei:item)">
+                                            <label ref="tei:label"/>
+                                            <value value="concat('#', @xml:id)"/>
+                                        </itemset>
+                                    </select1>
+                                    <trigger>
+                                        <label>×</label>
+                                        <delete nodeset="." ev:event="DOMActivate" />
+                                    </trigger>
+                                </repeat>
                                 <repeat id="listSubConcept" nodeset="sort(tei:list/tei:item)">
                                     <input ref="tei:label">
                                         <label>
                                             Label
+                                            <trigger ref="parent::tei:item">
+                                                <label>⟳</label>
+                                                <!--<hint>ajouter un renvoi</hint>-->
+                                                <insert context="." nodeset="*" at="last()" position="after" origin="instance('ref')/tei:item/tei:ref" ev:event="DOMActivate"/>
+                                            </trigger>
                                             <trigger ref="parent::tei:item[instance('lock')='unlocked']">
                                                 <label>×</label>
                                                 <delete nodeset="." ev:event="DOMActivate" />
                                             </trigger>
                                         </label>
                                     </input>
+                                    <repeat id="listSubConceptRef" nodeset="tei:ref">
+                                        <select1 ref="@corresp">
+                                            <label>Renvoi</label>
+                                            <itemset nodeset="instance('concepts')//tei:item">
+                                                <label ref="tei:label"/>
+                                                <value value="concat('#', @xml:id)"/>
+                                            </itemset>
+                                        </select1>
+                                        <trigger>
+                                            <label>×</label>
+                                            <delete nodeset="." ev:event="DOMActivate" />
+                                        </trigger>
+                                    </repeat>
                                 </repeat>
                                 <trigger ref=".[tei:list]">
                                     <label>+</label>
@@ -377,8 +434,14 @@
                     <case id="indexPanel">
                         <group ref="instance('concepts')">
                             <label>Concepts</label>
-                            <repeat id="listConcept" nodeset="sort(tei:text/tei:body/tei:list/tei:item)">
+                            <repeat id="listItem" nodeset="sort(tei:text/tei:body/tei:list/tei:item)">
                                 <label ref="tei:label"/>
+                                <group ref=".[tei:ref]" class="ref">
+                                    <label>Voir</label>
+                                    <repeat id="listItemRef" nodeset="tei:ref">
+                                        <label ref="instance('concepts')//tei:item[@xml:id=substring-after(current()/@corresp, '#')]/tei:label"/>
+                                    </repeat>
+                                </group>
                                 <group ref="tei:linkGrp">
                                     <repeat nodeset="sort(tei:ptr/@target)">
                                         <trigger>
@@ -394,7 +457,7 @@
                                         </trigger>
                                     </repeat>
                                 </group>
-                                <repeat id="listSubConcept" nodeset="sort(tei:list/tei:item)">
+                                <repeat id="listSubItem" nodeset="sort(tei:list/tei:item)">
                                     <label ref="tei:label"/>
                                     <group ref="tei:linkGrp">
                                         <repeat nodeset="sort(tei:ptr/@target)">
