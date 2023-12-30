@@ -19,33 +19,15 @@
   <text>
       <body>
          <list>
-             <item xml:id="conceptB">
-                 <label>Concept B</label>
-                 <linkGrp>
-                     <ptr target="//*[@id='paragraphe-14']" offset="42" length="23" type="x-pointer"/>
-                 </linkGrp>
-             </item>
              <item xml:id="conceptA">
                  <label>Concept A</label>
                  <linkGrp>
-                     <ptr target="//*[@id='paragraphe-13']" offset="42" length="23" type="x-pointer"/>
                      <ptr target="//*[@id='paragraphe-10']" offset="42" length="23" type="x-pointer"/>
-                     <ptr target="//*[@id='paragraphe-11']" offset="42" length="23" type="x-pointer"/>
                  </linkGrp>
+                 <ref corresp="#conceptA1"/>
                  <list>
                      <item xml:id="conceptA1">
                          <label>Concept A1</label>
-                         <linkGrp>
-                             <ptr target="//*[@id='paragraphe-10']" offset="42" length="23" type="x-pointer"/>
-                             <ptr target="//*[@id='paragraphe-11']" offset="42" length="23" type="x-pointer"/>
-                             <ptr target="//*[@id='paragraphe-13']" offset="42" length="23" type="x-pointer"/>
-                         </linkGrp>
-                     </item>
-                     <item xml:id="conceptA2">
-                         <label>Concept A2</label>
-                         <linkGrp>
-                             <ptr target="//*[@id='paragraphe-14']" offset="42" length="23" type="x-pointer"/>
-                         </linkGrp>
                      </item>
                  </list>
              </item>

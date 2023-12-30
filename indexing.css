@@ -1,0 +1,41 @@
+div#form xforms-input input,
+div#form select{
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+div#form xforms-repeat[oldid='listConceptRef'] > xforms-repeat-item,
+div#form xforms-repeat[oldid='listSubConceptRef'] > xforms-repeat-item,
+div#form xforms-select1,
+div#form .ref[xf-bound],
+div#form .ref xforms-repeat[oldid='listItemRef'] {
+    display: flex;
+    align-items: center;
+    gap: 0.2em;
+}
+
+div#form #conceptResults {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    min-height: 0;
+    max-height: 100px;
+    overflow:auto;
+}
+
+div#form xforms-switch > xforms-trigger {
+    margin-right: 2em;
+}
+
+div#form #listConcept xforms-repeat[oldid='listSubConcept'],
+div#form #listItem xforms-repeat[oldid='listSubItem'],
+div#form #listConcept > xforms-repeat-item > xforms-trigger {
+    margin-left: 2em;
+}
+
+.highlight {
+    background-color: yellow;
+}
+
+.showEntry {
+    background-color: pink;
+}

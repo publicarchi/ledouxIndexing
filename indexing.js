@@ -1,8 +1,11 @@
 document.addEventListener('mousedown', getXpathStart);
 document.addEventListener('mousedown', removeHighlightSelection);
-document.addEventListener('mousedown', removeHighlight);
+document.addEventListener('mousedown', hideEntry);
 document.addEventListener('mouseup', getXpathEnd);
 
+/*
+* This function generate id for index entries
+*/
 function generateid() {
    let id;
    id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
@@ -15,6 +18,9 @@ function generateid() {
        });
 }
 
+/*
+* This fonction returns to xforms the XPath of the beginning of the selection
+*/
 function getXpathStart (event) {
    if (event === undefined) event = window.event;
 
@@ -31,6 +37,14 @@ function getXpathStart (event) {
    else {console.log("Texte hors périmètre (début) ! ")}
 }
 
+/*
+* This fonction returns to xforms:
+* - the XPath of the end of the selection
+* - the start offset
+* - the end offset
+* - the length of the selection
+* - the selected text
+*/
 function getXpathEnd (event) {
    if (event === undefined) event = window.event;
    var target = 'target' in event ? event.target: event.srcElement;
@@ -62,6 +76,9 @@ function getXpathEnd (event) {
    else {console.log("Texte hors périmètre (fin) !")}
 }
 
+/*
+* This function returns an xpath expression from a given node
+*/
 function getXPath(element) {
    if (element.id !== '')
    return "//*[@id='" + element.id + "']";
@@ -82,6 +99,39 @@ function getXPath(element) {
    }
 }
 
+/*
+* This function highlights indexed text entries
+* @todo doesn't not work as expected. We want to highlight only fragment of the text
+*/
+function showEntry(xpath) {
+   var element = document.evaluate(xpath, document, null,
+       XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+   // Check if the element was found and do something with it
+   if (element !== null) {
+      // Do something with the element
+      console.log(element);
+      element.scrollIntoView();
+      element.classList.add("showEntry");
+   }
+}
+
+/*
+* This function hide indexed text entries on click
+*/
+function hideEntry() {
+   var target = 'target' in event ? event.target: event.srcElement;
+   if(target.closest("#edition")) {
+      const elements = document.querySelectorAll('*');
+      elements.forEach((element) => {
+         element.classList.remove("showEntry")
+      });
+   }
+}
+
+/*
+* The next three functions highlight selected text for indexing
+*/
 function highlightSelection() {
    var userSelection = window.getSelection().getRangeAt(0);
    var safeRanges = getSafeRanges(userSelection);
@@ -160,7 +210,9 @@ function getSafeRanges(dangerous) {
    return response;
 }
 
-// this fonction removes span.highlight added with highlightSelection()
+/*
+* This fonction removes span.highlight added with highlightSelection()
+*/
 function removeHighlightSelection(event) {
    var target = 'target' in event ? event.target: event.srcElement;
    if(target.closest("#edition")) {
@@ -172,28 +224,5 @@ function removeHighlightSelection(event) {
          }
          parent.removeChild( select[ 0 ] );
       }
-   }
-}
-
-function showHighlight(xpath) {
-   var element = document.evaluate(xpath, document, null,
-       XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-
-   // Check if the element was found and do something with it
-   if (element !== null) {
-      // Do something with the element
-      console.log(element);
-      element.scrollIntoView();
-      element.classList.add("showHighlight");
-   }
-}
-
-function removeHighlight() {
-   var target = 'target' in event ? event.target: event.srcElement;
-   if(target.closest("#edition")) {
-      const elements = document.querySelectorAll('*');
-      elements.forEach((element) => {
-         element.classList.remove("showHighlight")
-      });
    }
 }

@@ -27,6 +27,8 @@
         <link rel="mask-icon" href="img/favicon/safari-pinned-tab.svg" color="#555555"/>
         <meta name="msapplication-TileColor" content="#ffffff"/>
         <meta name="theme-color" content="#ffffff"/>
+
+        <!-- Xforms model / style / js -->
         <model xmlns="http://www.w3.org/2002/xforms" id="index">
             <!-- main instance to store indexing information about selected text -->
             <instance id="selection">
@@ -90,51 +92,7 @@
                 <setvalue ref="instance('concepts')//tei:item[@xml:id='']/@xml:id" value="event('itemId')"/>
             </action>
         </model>
-
-        <style>
-            div#form xforms-input input,
-            div#form select{
-                background-color: var(--color-bg);
-                color: var(--color-text);
-            }
-
-            div#form xforms-repeat[oldid='listConceptRef'] > xforms-repeat-item,
-            div#form xforms-repeat[oldid='listSubConceptRef'] > xforms-repeat-item,
-            div#form xforms-select1,
-            div#form .ref,
-            div#form .ref xforms-repeat[oldid='listItemRef'] {
-                display: flex;
-                align-items: center;
-                gap: 0.2em;
-            }
-
-            div#form #conceptResults {
-                background-color: var(--color-bg);
-                color: var(--color-text);
-                min-height: 0;
-                max-height: 100px;
-                overflow:auto;
-            }
-
-            div#form xforms-switch > xforms-trigger {
-                margin-right: 2em;
-            }
-
-            div#form #listConcept xforms-repeat[oldid='listSubConcept'],
-            div#form #listItem xforms-repeat[oldid='listSubItem'],
-            div#form #listConcept > xforms-repeat-item > xforms-trigger {
-                margin-left: 2em;
-            }
-
-            .highlight {
-                background-color: yellow;
-            }
-
-            .showHighlight {
-                background-color: pink;
-            }
-        </style>
-        <!--@todo explore onselectStart js event https://developer.mozilla.org/en-US/docs/Web/API/Node/selectstart_event-->
+        <link rel="stylesheet" href="indexing.css"/>
         <script type="text/javascript" src="indexing.js">/*xptr*/</script>
     </head>
 
@@ -340,7 +298,9 @@
                     </case>
                     <case id="conceptsPanel">
                         <label>Concepts</label>
-                        <output value="serialize(instance('concepts'))"/>
+
+                            <output value="serialize(instance('concepts'))"/>
+
                         <group ref="instance('concepts')">
                             <label>Concepts</label>
                             <repeat id="listConcept" nodeset="sort(tei:text/tei:body/tei:list/tei:item)">
@@ -373,7 +333,7 @@
                                             <value value="concat('#', @xml:id)"/>
                                         </itemset>
                                     </select1>
-                                    <trigger>
+                                    <trigger ref="parent::tei:item[instance('lock')='unlocked']">
                                         <label>×</label>
                                         <delete nodeset="." ev:event="DOMActivate" />
                                     </trigger>
@@ -401,7 +361,7 @@
                                                 <value value="concat('#', @xml:id)"/>
                                             </itemset>
                                         </select1>
-                                        <trigger>
+                                        <trigger ref="parent::tei:item[instance('lock')='unlocked']">
                                             <label>×</label>
                                             <delete nodeset="." ev:event="DOMActivate" />
                                         </trigger>
@@ -436,9 +396,9 @@
                             <label>Concepts</label>
                             <repeat id="listItem" nodeset="sort(tei:text/tei:body/tei:list/tei:item)">
                                 <label ref="tei:label"/>
-                                <group ref=".[tei:ref]" class="ref">
+                                <group ref="tei:ref" class="ref">
                                     <label>Voir</label>
-                                    <repeat id="listItemRef" nodeset="tei:ref">
+                                    <repeat id="listItemRef" nodeset=".">
                                         <label ref="instance('concepts')//tei:item[@xml:id=substring-after(current()/@corresp, '#')]/tei:label"/>
                                     </repeat>
                                 </group>
@@ -449,7 +409,7 @@
                                             <action ev:event="DOMActivate">
                                                 <load>
                                                     <resource value='concat(
-                                                    "javascript:showHighlight(""",
+                                                    "javascript:showEntry(""",
                                                     normalize-space(.),
                                                     """)")'/>
                                                 </load>
@@ -466,7 +426,7 @@
                                                 <action ev:event="DOMActivate">
                                                     <load>
                                                         <resource value='concat(
-                                                    "javascript:showHighlight(""",
+                                                    "javascript:showEntry(""",
                                                     normalize-space(.),
                                                     """)")'/>
                                                     </load>
