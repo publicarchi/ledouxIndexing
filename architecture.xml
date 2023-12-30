@@ -309,14 +309,17 @@
                                     <label>
                                         Label
                                         <trigger ref="parent::tei:item[not(tei:list)]">
-                                            <label>⮑</label>
+                                            <!--<label>⮑</label>-->
+                                            <label>⥅</label>
                                             <!--<hint>ajouter un sous-concept</hint>-->
                                             <insert if=".[tei:list]" context="tei:list" nodeset="tei:item" at="last()" position="after" origin="instance('conceptEntry')/tei:item" ev:event="DOMActivate" />
                                             <insert if=".[not(tei:list)]" context="." nodeset="*" at="last()" position="after" origin="instance('conceptEntry')" ev:event="DOMActivate"/>
                                             <load resource="javascript:generateid()" ev:event="DOMActivate"/>
                                         </trigger>
                                         <trigger ref="parent::tei:item[not(tei:ref)]">
-                                            <label>⟳</label>
+                                            <!--<label>⟳</label>-->
+                                            <!--<label>⮂</label>-->
+                                            <label>⇄</label>
                                             <!--<hint>ajouter un renvoi</hint>-->
                                             <insert context="." nodeset="*" at="last()" position="after" origin="instance('ref')/tei:item/tei:ref" ev:event="DOMActivate"/>
                                         </trigger>
@@ -344,7 +347,9 @@
                                         <label>
                                             Label
                                             <trigger ref="parent::tei:item[not(tei:ref)]">
-                                                <label>⟳</label>
+                                                <!--<label>⮂</label>-->
+                                                <label>⇄</label>
+                                                <!--<label>⟳</label>-->
                                                 <!--<hint>ajouter un renvoi</hint>-->
                                                 <insert context="." nodeset="*" at="last()" position="after" origin="instance('ref')/tei:item/tei:ref" ev:event="DOMActivate"/>
                                             </trigger>
