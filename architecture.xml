@@ -242,7 +242,7 @@
                         <toggle case="indexPanel" ev:event="DOMActivate"/>
                     </trigger>
                     <case id="indexingPanel" selected="true">
-                        <label>Index</label>
+                        <label>Indexer</label>
                         <group xmlns="http://www.w3.org/2002/xforms">
                             <group ref="instance('selection')" xmlns="http://www.w3.org/2002/xforms">
                                 <output value="instance('text')"><label>Texte sélectionné:</label></output><h:br/>
@@ -297,7 +297,7 @@
                         </group>
                     </case>
                     <case id="conceptsPanel">
-                        <label>Concepts</label>
+                        <label>Entrées</label>
                         <!--
                         pour le debug, ne pas supprimer
                         <output value="serialize(instance('concepts'))"/>
@@ -394,7 +394,7 @@
                     </case>
                     <case id="indexPanel">
                         <group ref="instance('concepts')">
-                            <label>Concepts</label>
+                            <label>Index</label>
                             <repeat id="listItem" nodeset="sort(tei:text/tei:body/tei:list/tei:item)">
                                 <label ref="tei:label"/>
                                 <group ref="tei:ref" class="ref">

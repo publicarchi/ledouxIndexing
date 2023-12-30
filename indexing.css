@@ -4,6 +4,16 @@ div#form select{
     color: var(--color-text);
 }
 
+/*div#form > xforms-switch > xforms-trigger[xf-focus] {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}*/
+
+div#form > xforms-switch > xforms-case[xf-selected='true'] {
+    margin-top: 1em;
+}
+
+
 div#form xforms-repeat[oldid='listConceptRef'] > xforms-repeat-item,
 div#form xforms-repeat[oldid='listSubConceptRef'] > xforms-repeat-item,
 div#form xforms-select1,
