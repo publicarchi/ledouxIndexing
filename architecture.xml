@@ -298,9 +298,10 @@
                     </case>
                     <case id="conceptsPanel">
                         <label>Concepts</label>
-
-                            <output value="serialize(instance('concepts'))"/>
-
+                        <!--
+                        pour le debug, ne pas supprimer
+                        <output value="serialize(instance('concepts'))"/>
+                        -->
                         <group ref="instance('concepts')">
                             <label>Concepts</label>
                             <repeat id="listConcept" nodeset="sort(tei:text/tei:body/tei:list/tei:item)">
