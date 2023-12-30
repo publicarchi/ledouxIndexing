@@ -402,7 +402,7 @@
                                         <label ref="instance('concepts')//tei:item[@xml:id=substring-after(current()/@corresp, '#')]/tei:label"/>
                                     </repeat>
                                 </group>
-                                <group ref="tei:linkGrp">
+                                <group ref="tei:linkGrp" class="ptr">
                                     <repeat nodeset="sort(tei:ptr/@target)">
                                         <trigger>
                                             <label ref="."/>

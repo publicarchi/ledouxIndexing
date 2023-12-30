@@ -40,6 +40,11 @@ div#form #listConcept > xforms-repeat-item > xforms-trigger {
     background-color: pink;
 }
 
+div#form #listItem .ref xforms-label,
+div#form #listItem .ptr xforms-label{
+    font-weight: normal;
+}
+
 /*to remove the cross superposition with the side panel close button*/
 .side.is-open .side_trigger button:after{
     content: "";
