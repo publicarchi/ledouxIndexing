@@ -63,3 +63,11 @@ div#form #listItem .ptr xforms-label{
 .side.is-open .side_trigger button:after{
     content: "";
 }
+
+.highlight {
+    background-color: yellow;
+}
+
+.highlightGreen {
+    background-color: green;
+}

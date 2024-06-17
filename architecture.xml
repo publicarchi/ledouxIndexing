@@ -79,13 +79,32 @@
                 <lock>locked</lock>
             </instance>
 
-            <action ev:event="getStartXpath">
+            <!--<action ev:event="getStartXpath">
                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@target" value="event('xpathStart')"/>
             </action>
             <action ev:event="getEndXpath">
                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@offset" value="event('indexStart')"/>
                 <setvalue ref="instance('text')" value="event('text')"/>
                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@length" value="event('length')"/>
+            </action>-->
+
+            <action ev:event="getSelectionInfo">
+                <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@target" value="event('startXPath')"/>
+                <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@offset" value="event('startIndex')"/>
+                <setvalue ref="instance('text')" value="event('textSelection')"/>
+                <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@length" value="event('length')"/>
+
+                <!--<load>
+                    <resource value='concat(
+                        "javascript:highlightSelection(""",
+                        instance("selection")/tei:item/tei:linkGrp/tei:ptr/@target,
+                        """", 
+                        ", ",
+                        number(instance("selection")/tei:item/tei:linkGrp/tei:ptr/@offset),
+                        ", ",
+                        number(instance("selection")/tei:item/tei:linkGrp/tei:ptr/@length),
+                        ")")'/>
+                </load>-->
             </action>
 
             <action ev:event="callbackevent">
@@ -93,7 +112,8 @@
             </action>
         </model>
         <link rel="stylesheet" href="indexing.css"/>
-        <script type="text/javascript" src="indexing.js">/*xptr*/</script>
+        <!--<script type="text/javascript" src="indexing.js">/*xptr*/</script>-->
+        <script type="text/javascript" src="highlight.js">/*xptr*/</script>
     </head>
 
     <body>
@@ -246,7 +266,7 @@
                         <group xmlns="http://www.w3.org/2002/xforms">
                             <group ref="instance('selection')" xmlns="http://www.w3.org/2002/xforms">
                                 <output value="instance('text')"><label>Texte sélectionné:</label></output><h:br/>
-                                <input ref="tei:item/tei:label" incremental="true">
+                                <input ref="tei:item/tei:label" incremental="true" id="conceptsField">
                                     <label>Concepts</label>
                                     <toggle ev:event="DOMFocusIn" case="show-autocompletion" />
                                 </input>
@@ -290,6 +310,7 @@
                                                 <setvalue ref="instance('selection')/tei:item/tei:label" value="''"/>
                                                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@*" value="''"/>
                                             </action>
+                                            <load resource="javascript:removeHighlightText()" ev:event="DOMActivate"/>
                                         </trigger>
                                     </group>
                                 </switch>
@@ -414,10 +435,19 @@
                                             <label ref="."/>
                                             <action ev:event="DOMActivate">
                                                 <load>
-                                                    <resource value='concat(
+                                                    <!--<resource value='concat(
                                                     "javascript:showEntry(""",
                                                     normalize-space(.),
-                                                    """)")'/>
+                                                    """)")'/>-->
+                                                    <resource value='concat(
+                                                    "javascript:highlightText(""",
+                                                    normalize-space(.),
+                                                    """", 
+                                                    ", ",
+                                                    number(./ancestor::tei:ptr/@offset),
+                                                    ", ",
+                                                    number(./ancestor::tei:ptr/@length),
+                                                    ")")'/>
                                                 </load>
                                             </action>
                                         </trigger>
@@ -437,10 +467,19 @@
                                                 <label ref="."/>
                                                 <action ev:event="DOMActivate">
                                                     <load>
-                                                        <resource value='concat(
+                                                        <!--<resource value='concat(
                                                     "javascript:showEntry(""",
                                                     normalize-space(.),
-                                                    """)")'/>
+                                                    """)")'/>-->
+                                                        <resource value='concat(
+                                                            "javascript:highlightText(""",
+                                                            normalize-space(.),
+                                                            """", 
+                                                            ", ",
+                                                            number(./ancestor::tei:ptr/@offset),
+                                                            ", ",
+                                                            number(./ancestor::tei:ptr/@length),
+                                                            ")")'/>
                                                     </load>
                                                 </action>
                                             </trigger>

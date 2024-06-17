@@ -22,7 +22,7 @@
              <item xml:id="conceptA">
                  <label>Concept A</label>
                  <linkGrp>
-                     <ptr target="//*[@id='paragraphe-10']" offset="42" length="23" type="x-pointer"/>
+                     <ptr target="//*[@id='paragraphe-10']/text()" offset="42" length="385" type="x-pointer"/>
                  </linkGrp>
                  <ref corresp="#conceptA1"/>
                  <list>

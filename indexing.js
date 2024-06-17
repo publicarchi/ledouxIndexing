@@ -1,7 +1,7 @@
-document.addEventListener('mousedown', getXpathStart);
-document.addEventListener('mousedown', removeHighlightSelection);
+/*document.addEventListener('mousedown', getXpathStart);*/
+document.addEventListener('mousedown', removeHighlightSelection);/*
 document.addEventListener('mousedown', hideEntry);
-document.addEventListener('mouseup', getXpathEnd);
+document.addEventListener('mouseup', getXpathEnd);*/
 
 /*
 * This function generate id for index entries
