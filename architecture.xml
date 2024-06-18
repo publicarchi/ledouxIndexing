@@ -309,7 +309,7 @@
                                                 <setvalue ref="instance('selection')/tei:item/tei:label" value="''"/>
                                                 <setvalue ref="instance('selection')/tei:item/tei:linkGrp/tei:ptr/@*" value="''"/>
                                             </action>
-                                            <load resource="javascript:removeHighlightText()" ev:event="DOMActivate"/>
+                                            <!--<load resource="javascript:removeHighlightText()" ev:event="DOMActivate"/>-->
                                         </trigger>
                                     </group>
                                 </switch>

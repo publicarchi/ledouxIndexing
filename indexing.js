@@ -1,5 +1,5 @@
 document.addEventListener('mouseup', getSelectionInfo);
-document.addEventListener('mousedown', removeHighlightSelection);
+document.addEventListener('mousedown', removeHighlightText);
 
 /*
 * This function add "selected" class to xforms tabs
@@ -167,9 +167,29 @@ function highlightText(startXPath, startIndex, highlightLength) {
 }
 
 /*
+* This fonction removes span.highlight added with highlightSelection()
+*/
+
+function removeHighlightText(event) {
+  var target = 'target' in event ? event.target: event.srcElement;
+  if(target.closest("#edition")) {
+     var select = document.getElementsByClassName('highlight');
+     while(select.length) {
+        var parent = select[ 0 ].parentNode;
+        while( select[ 0 ].firstChild ) {
+           parent.insertBefore(  select[ 0 ].firstChild, select[ 0 ] );
+        }
+        parent.removeChild( select[ 0 ] );
+     }
+  }
+}
+
+
+/*
 * This fonction removes highlighting over indexed text
 */
-function removeHighlightText(event) {
+/*
+function removeHighlightSelection(event) {
   var select = document.getElementsByClassName('highlight');
   while(select.length) {
     var parent = select[ 0 ].parentNode;
@@ -179,6 +199,7 @@ function removeHighlightText(event) {
     parent.removeChild( select[ 0 ] );
   }
 };
+*/
 
 /*
 * the following statements keep selected text highlighted
@@ -239,22 +260,3 @@ window.onload = function() {
       restoreSelection(savedSel);
   };
 };
-
-/*
-* This fonction removes span.highlight added with highlightSelection()
-*/
-/*
-function removeHighlightSelection(event) {
-  var target = 'target' in event ? event.target: event.srcElement;
-  if(target.closest("#edition")) {
-     var select = document.getElementsByClassName('highlight');
-     while(select.length) {
-        var parent = select[ 0 ].parentNode;
-        while( select[ 0 ].firstChild ) {
-           parent.insertBefore(  select[ 0 ].firstChild, select[ 0 ] );
-        }
-        parent.removeChild( select[ 0 ] );
-     }
-  }
-}
-*/
