@@ -1,245 +1,260 @@
-/*document.addEventListener('mousedown', getXpathStart);*/
-document.addEventListener('mousedown', removeHighlightSelection);/*
-document.addEventListener('mousedown', hideEntry);
-document.addEventListener('mouseup', getXpathEnd);*/
+document.addEventListener('mouseup', getSelectionInfo);
+document.addEventListener('mousedown', removeHighlightSelection);
+
+/*
+* This function add "selected" class to xforms tabs
+*/
+document.addEventListener('click', function handleClick(event) {
+  var target = event.target;
+  var newActiveTab = target.closest('xforms-trigger.tab');
+
+  if(target.closest('xforms-trigger.tab')) {   
+     const prevActiveTab = document.querySelectorAll('*');
+     prevActiveTab.forEach((element) => { element.classList.remove("selected") });
+
+     newActiveTab.classList.add('selected')
+  }
+});
 
 /*
 * This function generate id for index entries
 */
 function generateid() {
-   let id;
-   id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
+  let id;
+  id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
 
-   XsltForms_xmlevents.dispatch(
-       document.getElementById("index"),
-       "callbackevent", null, null, null, null,
-       {
-          itemId: id
-       });
-}
-
-/*
-* This fonction returns to xforms the XPath of the beginning of the selection
-*/
-function getXpathStart (event) {
-   if (event === undefined) event = window.event;
-
-   var target = 'target' in event ? event.target: event.srcElement;
-   var path = getXPath(target);
-
-
-   if(target.closest("#edition")) {
-      console.log("start xpath: ", path)
-      XsltForms_xmlevents.dispatch(document.getElementById("index"), "getStartXpath", null, null, null, null, {
-         xpathStart: path
-      });
-   }
-   else {console.log("Texte hors périmètre (début) ! ")}
-}
-
-/*
-* This fonction returns to xforms:
-* - the XPath of the end of the selection
-* - the start offset
-* - the end offset
-* - the length of the selection
-* - the selected text
-*/
-function getXpathEnd (event) {
-   if (event === undefined) event = window.event;
-   var target = 'target' in event ? event.target: event.srcElement;
-   var path = getXPath(target);
-
-   const selection = () => {
-      if (window.getSelection)
-         return window.getSelection();
-   }
-
-   if(target.closest("#edition")) {
-      console.log(
-          'event: ',  event,
-          'target: ',  target,
-          'startOffset: ',  selection().anchorOffset,
-          'endOffset: ', selection().focusOffset.toString(),
-          'text: ', selection().toString(),
-          'length: ', selection().toString().length
-      )
-      highlightSelection()
-      XsltForms_xmlevents.dispatch(document.getElementById("index"), "getEndXpath", null, null, null, null, {
-         xpathEnd: path,
-         indexStart: selection().anchorOffset.toString(),
-         indexEnd: selection().focusOffset.toString(),
-         text: selection().toString(),
-         length: selection().toString().length
-      });
-   }
-   else {console.log("Texte hors périmètre (fin) !")}
-}
-
-/*
-* This function returns an xpath expression from a given node
-*/
-function getXPath(element) {
-   if (element.id !== '')
-   return "//*[@id='" + element.id + "']";
-
-   if (element === document.body)
-   return element.tagName.toLowerCase();
-
-   var ix = 0;
-   var siblings = element.parentNode.childNodes;
-   for (var i = 0; i < siblings.length; i++) {
-      var sibling = siblings[i];
-
-      if (sibling === element) return getXPath(element.parentNode) + '/' + element.tagName.toLowerCase() + '[' + (ix + 1) + ']';
-
-      if (sibling.nodeType === 1 && sibling.tagName === element.tagName) {
-         ix++;
+  XsltForms_xmlevents.dispatch(
+      document.getElementById("index"),
+      "callbackevent", null, null, null, null,
+      {
+         itemId: id
       }
-   }
+  );
+}
+
+
+/*
+this function returns xpointer for the selected text
+*/
+function getSelectionInfo() {
+  const selection = window.getSelection();
+  var target = 'target' in event ? event.target: event.srcElement;
+  if (!selection.rangeCount) return null;
+
+  const range = selection.getRangeAt(0);
+  const startNode = range.startContainer;
+  const endNode = range.endContainer;
+
+  const selected = () => {
+    if (window.getSelection)
+       return window.getSelection();
+  }
+
+  // Get XPath
+  function getXPath(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+          node = node.parentNode;
+      }
+      const parts = [];
+      while (node && node.nodeType === Node.ELEMENT_NODE) {
+          let count = 0;
+          let sibling;
+          for (sibling = node.previousSibling; sibling; sibling = sibling.previousSibling) {
+              if (sibling.nodeType === Node.ELEMENT_NODE && sibling.nodeName === node.nodeName) {
+                  count++;
+              }
+          }
+          const part = node.nodeName.toLowerCase() + (count > 0 ? '[' + (count + 1) + ']' : '');
+          parts.unshift(part);
+          node = node.parentNode;
+      }
+      return parts.length ? '/' + parts.join('/') : null;
+  }
+
+  // Get the XPath of the start and end nodes
+  const startXPath = getXPath(startNode);
+  const endXPath = getXPath(endNode);
+
+  // Calculate index and length
+  //const startIndex = range.startOffset;
+  const startIndex = selected().anchorOffset.toString();
+  const endIndex = range.endOffset;
+  const textLength = range.toString().length;
+  const textSelection = selected().toString();
+
+  /*return {
+      startXPath: startXPath,
+      endXPath: endXPath,
+      startIndex: startIndex,
+      endIndex: endIndex,
+      length: textLength
+  };*/
+  if(target.closest("#edition")) {
+    XsltForms_xmlevents.dispatch(document.getElementById("index"), "getSelectionInfo", null, null, null, null, {
+      startXPath: startXPath.concat('/text()'),
+      endXPath: endXPath,
+      startIndex: startIndex,
+      endIndex: endIndex,
+      length: textLength,
+      textSelection: textSelection
+    })
+  } else {console.log("Texte hors périmètre ! ")};
+};
+
+/*
+  this function highlights indexed text
+*/
+function highlightText(startXPath, startIndex, highlightLength) {
+
+  function getNodeByXPath(xpath) {
+    const evaluator = new XPathEvaluator();
+    const result = evaluator.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+    return result.singleNodeValue;
+  }
+
+  const startNode = getNodeByXPath(startXPath);
+  if (!startNode || startNode.nodeType !== Node.TEXT_NODE) {
+    console.error('Invalid XPath or the node is not a text node.');
+    return;
+  }
+
+  let remainingLength = highlightLength;
+  let nodesToHighlight = [];
+  let foundStart = false;
+
+  function traverse(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      let textContent = node.textContent;
+      if (!foundStart) {
+        if (node === startNode) {
+          foundStart = true;
+          let textToEnd = textContent.slice(startIndex);
+          nodesToHighlight.push({ node, start: startIndex, length: Math.min(remainingLength, textToEnd.length) });
+          remainingLength -= textToEnd.length;
+        }
+      } else if (remainingLength > 0) {
+        nodesToHighlight.push({ node, start: 0, length: Math.min(remainingLength, textContent.length) });
+        remainingLength -= textContent.length;
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      for (let i = 0; i < node.childNodes.length; i++) {
+        if (remainingLength <= 0) return;
+        traverse(node.childNodes[i]);
+      }
+    }
+  }
+
+  // Start traversal from the root container
+  traverse(document.body);
+
+  // Apply the highlighting
+  nodesToHighlight.forEach(({ node, start, length }) => {
+    const highlightedText = node.textContent.slice(0, start) +
+                            `<span class="highlight">${node.textContent.slice(start, start + length)}</span>` +
+                            node.textContent.slice(start + length);
+    const span = document.createElement('span');
+    span.innerHTML = highlightedText;
+    node.replaceWith(...span.childNodes);
+  });
+
+  // to focus on the element
+  var startElement = startXPath.replace('/text()', '')
+  var element = document.evaluate(startElement, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    
+  if (element !== null) {
+    element.scrollIntoView();
+  }
 }
 
 /*
-* This function highlights indexed text entries
-* @todo doesn't not work as expected. We want to highlight only fragment of the text
+* This fonction removes highlighting over indexed text
 */
-function showEntry(xpath) {
-   var element = document.evaluate(xpath, document, null,
-       XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-
-   // Check if the element was found and do something with it
-   if (element !== null) {
-      // Do something with the element
-      console.log(element);
-      element.scrollIntoView();
-      element.classList.add("showEntry");
-   }
-}
+function removeHighlightText(event) {
+  var select = document.getElementsByClassName('highlight');
+  while(select.length) {
+    var parent = select[ 0 ].parentNode;
+    while( select[ 0 ].firstChild ) {
+      parent.insertBefore(  select[ 0 ].firstChild, select[ 0 ] );
+    }
+    parent.removeChild( select[ 0 ] );
+  }
+};
 
 /*
-* This function hide indexed text entries on click
+* the following statements keep selected text highlighted
+* @issue doesn't keep highlight when focus change…
 */
-function hideEntry() {
-   var target = 'target' in event ? event.target: event.srcElement;
-   if(target.closest("#edition")) {
-      const elements = document.querySelectorAll('*');
-      elements.forEach((element) => {
-         element.classList.remove("showEntry")
-      });
-   }
+var saveSelection, restoreSelection;
+if (window.getSelection) {
+    // IE 9 and non-IE
+    saveSelection = function() {
+        var sel = window.getSelection(), ranges = [];
+        if (sel.rangeCount) {
+            for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+                ranges.push(sel.getRangeAt(i));
+            }
+        }
+        return ranges;
+    };
+
+    restoreSelection = function(savedSelection) {
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        for (var i = 0, len = savedSelection.length; i < len; ++i) {
+            sel.addRange(savedSelection[i]);
+        }
+    };
+} else if (document.selection && document.selection.createRange) {
+    // IE <= 8
+    saveSelection = function() {
+        var sel = document.selection;
+        return (sel.type != "None") ? sel.createRange() : null;
+    };
+
+    restoreSelection = function(savedSelection) {
+        if (savedSelection) {
+            savedSelection.select();
+        }
+    };
 }
 
-/*
-* The next three functions highlight selected text for indexing
-*/
-function highlightSelection() {
-   var userSelection = window.getSelection().getRangeAt(0);
-   var safeRanges = getSafeRanges(userSelection);
-   for (var i = 0; i < safeRanges.length; i++) {
-      highlightRange(safeRanges[i]);
-   }
-}
+window.onload = function() {
+    var specialDiv = document.getElementById("side-summary");
+    var specialField = document.getElementById("conceptsField");
+    var savedSel = null;
 
-function highlightRange(range) {
-   var newNode = document.createElement("span");
-   newNode.setAttribute(
-       "class",
-       "highlight"
-   );
-   range.surroundContents(newNode);
-}
+    specialDiv.onmousedown = function() {
+        savedSel = saveSelection();
+    };
 
-function getSafeRanges(dangerous) {
-   var a = dangerous.commonAncestorContainer;
-   // Starts -- Work inward from the start, selecting the largest safe range
-   var s = new Array(0), rs = new Array(0);
-   if (dangerous.startContainer != a) {
-      for (var i = dangerous.startContainer; i != a; i = i.parentNode) {
-         s.push(i);
-      }
-   }
-   if (s.length > 0) {
-      for (var i = 0; i < s.length; i++) {
-         var xs = document.createRange();
-         if (i) {
-            xs.setStartAfter(s[i - 1]);
-            xs.setEndAfter(s[i].lastChild);
-         } else {
-            xs.setStart(s[i], dangerous.startOffset);
-            xs.setEndAfter((s[i].nodeType == Node.TEXT_NODE) ? s[i] : s[i].lastChild);
-         }
-         rs.push(xs);
-      }
-   }
+    specialDiv.onmouseup = function() {
+        restoreSelection(savedSel);
+    };
 
-   // Ends -- basically the same code reversed
-   var e = new Array(0), re = new Array(0);
-   if (dangerous.endContainer != a) {
-      for (var i = dangerous.endContainer; i != a; i = i.parentNode) {
-         e.push(i);
-      }
-   }
-   if (e.length > 0) {
-      for (var i = 0; i < e.length; i++) {
-         var xe = document.createRange();
-         if (i) {
-            xe.setStartBefore(e[i].firstChild);
-            xe.setEndBefore(e[i - 1]);
-         } else {
-            xe.setStartBefore((e[i].nodeType == Node.TEXT_NODE) ? e[i] : e[i].firstChild);
-            xe.setEnd(e[i], dangerous.endOffset);
-         }
-         re.unshift(xe);
-      }
-   }
+    specialField.onmousedown = function() {
+      savedSel = saveSelection();
+  };
 
-   // Middle -- the uncaptured middle
-   if ((s.length > 0) && (e.length > 0)) {
-      var xm = document.createRange();
-      xm.setStartAfter(s[s.length - 1]);
-      xm.setEndBefore(e[e.length - 1]);
-   } else {
-      return [dangerous];
-   }
-
-   // Concat
-   rs.push(xm);
-   response = rs.concat(re);
-
-   // Send to Console
-   return response;
-}
+  specialField.onmouseup = function() {
+      restoreSelection(savedSel);
+  };
+};
 
 /*
 * This fonction removes span.highlight added with highlightSelection()
 */
+/*
 function removeHighlightSelection(event) {
-   var target = 'target' in event ? event.target: event.srcElement;
-   if(target.closest("#edition")) {
-      var select = document.getElementsByClassName('highlight');
-      while(select.length) {
-         var parent = select[ 0 ].parentNode;
-         while( select[ 0 ].firstChild ) {
-            parent.insertBefore(  select[ 0 ].firstChild, select[ 0 ] );
-         }
-         parent.removeChild( select[ 0 ] );
-      }
-   }
+  var target = 'target' in event ? event.target: event.srcElement;
+  if(target.closest("#edition")) {
+     var select = document.getElementsByClassName('highlight');
+     while(select.length) {
+        var parent = select[ 0 ].parentNode;
+        while( select[ 0 ].firstChild ) {
+           parent.insertBefore(  select[ 0 ].firstChild, select[ 0 ] );
+        }
+        parent.removeChild( select[ 0 ] );
+     }
+  }
 }
-
-document.addEventListener('click', function handleClick(event) {
-   var target = event.target;
-   var newActiveTab = target.closest('xforms-trigger.tab');
-
-   if(target.closest('xforms-trigger.tab')) {
-      
-      const prevActiveTab = document.querySelectorAll('*');
-      prevActiveTab.forEach((element) => {
-         element.classList.remove("selected")
-      });
-
-
-      newActiveTab.classList.add('selected')
-   }
- });
- 
+*/

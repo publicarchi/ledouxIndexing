@@ -112,8 +112,7 @@
             </action>
         </model>
         <link rel="stylesheet" href="indexing.css"/>
-        <!--<script type="text/javascript" src="indexing.js">/*xptr*/</script>-->
-        <script type="text/javascript" src="highlight.js">/*xptr*/</script>
+        <script type="text/javascript" src="indexing.js">/*xptr*/</script>
     </head>
 
     <body>
